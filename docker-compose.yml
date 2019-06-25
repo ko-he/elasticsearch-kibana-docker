@@ -1,9 +1,14 @@
 version: '3.7'
 services:
-  elasticsearch01:
-    build: ./es
-    container_name: elasticsearch01
+  es01:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.1.1
+    container_name: es01
     environment:
+      - node.name=es01
+      - discovery.seed_hosts=es02
+      - cluster.initial_master_nodes=es01,es02
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ulimits:
       memlock:
@@ -11,18 +16,19 @@ services:
         hard: -1
     volumes:
       - esdata01:/usr/share/elasticsearch/data
-      - ./es/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
-      - ./es/config/log4j2.properties:/usr/share/elasticsearch/config/log4j2.properties
-#      - ./es/config/jvm.options:/usr/share/elasticsearch/config/jvm.options
     ports:
-      - 9201:9200
+      - 9200:9200
     networks:
       - esnet
-
-  elasticsearch02:
-    build: ./es
-    container_name: elasticsearch02
+  es02:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.1.1
+    container_name: es02
     environment:
+      - node.name=es02
+      - discovery.seed_hosts=es01
+      - cluster.initial_master_nodes=es01,es02
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ulimits:
       memlock:
@@ -30,38 +36,14 @@ services:
         hard: -1
     volumes:
       - esdata02:/usr/share/elasticsearch/data
-      - ./es/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
-      - ./es/config/log4j2.properties:/usr/share/elasticsearch/config/log4j2.properties
-#      - ./es/config/jvm.options:/usr/share/elasticsearch/config/jvm.options
-    ports:
-      - 9202:9200
     networks:
       - esnet
 
-  elasticsearch03:
-    build: ./es
-    container_name: elasticsearch03
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.1.1
+    container_name: kibana
     environment:
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumes:
-      - esdata03:/usr/share/elasticsearch/data
-      - ./es/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
-      - ./es/config/log4j2.properties:/usr/share/elasticsearch/config/log4j2.properties
-#      - ./es/config/jvm.options:/usr/share/elasticsearch/config/jvm.options
-    ports:
-      - 9203:9200
-    networks:
-      - esnet
-
-  kibana01:
-    build: ./kibana
-    container_name: kibana01
-    links:
-      - elasticsearch01:elasticsearch
+      ELASTICSEARCH_HOSTS: http://es01:9200
     ports:
       - 5601:5601
     networks:
@@ -71,8 +53,6 @@ volumes:
   esdata01:
     driver: local
   esdata02:
-    driver: local
-  esdata03:
     driver: local
 
 networks:
