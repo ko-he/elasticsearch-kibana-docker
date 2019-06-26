@@ -1,12 +1,12 @@
 version: '3.7'
 services:
-  es01:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.1.1
-    container_name: es01
+  elasticsearch:
+    build: ./es
+    container_name: elasticsearch
     environment:
-      - node.name=es01
-      - discovery.seed_hosts=es02
-      - cluster.initial_master_nodes=es01,es02
+      - node.name=elasticsearch
+      - discovery.seed_hosts=elasticsearch02
+      - cluster.initial_master_nodes=elasticsearch,elasticsearch02
       - cluster.name=docker-cluster
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
@@ -15,18 +15,19 @@ services:
         soft: -1
         hard: -1
     volumes:
-      - esdata01:/usr/share/elasticsearch/data
+      - elasticsearch_vol:/usr/share/elasticsearch/data
     ports:
       - 9200:9200
     networks:
       - esnet
-  es02:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.1.1
-    container_name: es02
+
+  elasticsearch02:
+    build: ./es
+    container_name: elasticsearch02
     environment:
-      - node.name=es02
-      - discovery.seed_hosts=es01
-      - cluster.initial_master_nodes=es01,es02
+      - node.name=elasticsearch02
+      - discovery.seed_hosts=elasticsearch
+      - cluster.initial_master_nodes=elasticsearch,elasticsearch02
       - cluster.name=docker-cluster
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
@@ -35,7 +36,17 @@ services:
         soft: -1
         hard: -1
     volumes:
-      - esdata02:/usr/share/elasticsearch/data
+      - elasticsearch_02_vol:/usr/share/elasticsearch/data
+    networks:
+      - esnet
+
+  apm:
+    image: docker.elastic.co/apm/apm-server:7.1.1
+    container_name: apm
+    ports:
+      - 8200:8200
+    environment:
+      - output.elasticsearch.hosts=elasticsearch:9200
     networks:
       - esnet
 
@@ -43,16 +54,16 @@ services:
     image: docker.elastic.co/kibana/kibana:7.1.1
     container_name: kibana
     environment:
-      ELASTICSEARCH_HOSTS: http://es01:9200
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
     ports:
       - 5601:5601
     networks:
       - esnet
 
 volumes:
-  esdata01:
+  elasticsearch_vol:
     driver: local
-  esdata02:
+  elasticsearch_02_vol:
     driver: local
 
 networks:
