@@ -47,6 +47,8 @@ services:
       - 8200:8200
     environment:
       - output.elasticsearch.hosts=elasticsearch:9200
+    volumes:
+      - ./apm/apm-server.yml:/usr/share/apm-server/apm-server.yml
     networks:
       - esnet
 
