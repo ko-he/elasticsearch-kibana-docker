@@ -5,7 +5,7 @@ services:
     container_name: elasticsearch
     environment:
       - node.name=elasticsearch
-      - discovery.seed_hosts=elasticsearch02
+      - discovery.seed_hosts=elasticsearch02,elasticsearch03
       - cluster.initial_master_nodes=elasticsearch,elasticsearch02
       - cluster.name=docker-cluster
       - bootstrap.memory_lock=true
@@ -26,7 +26,7 @@ services:
     container_name: elasticsearch02
     environment:
       - node.name=elasticsearch02
-      - discovery.seed_hosts=elasticsearch
+      - discovery.seed_hosts=elasticsearch,elasticsearch03
       - cluster.initial_master_nodes=elasticsearch,elasticsearch02
       - cluster.name=docker-cluster
       - bootstrap.memory_lock=true
@@ -39,6 +39,26 @@ services:
       - elasticsearch_02_vol:/usr/share/elasticsearch/data
     networks:
       - esnet
+
+  elasticsearch03:
+    build: ./es
+    container_name: elasticsearch03
+    environment:
+      - node.name=elasticsearch03
+      - discovery.seed_hosts=elasticsearch,elasticsearch02
+      - cluster.initial_master_nodes=elasticsearch,elasticsearch02
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - elasticsearch_03_vol:/usr/share/elasticsearch/data
+    networks:
+      - esnet
+
 
   apm:
     image: docker.elastic.co/apm/apm-server:7.1.1
@@ -66,6 +86,8 @@ volumes:
   elasticsearch_vol:
     driver: local
   elasticsearch_02_vol:
+    driver: local
+  elasticsearch_03_vol:
     driver: local
 
 networks:
