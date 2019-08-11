@@ -1,5 +1,5 @@
 #FROM elasticsearch:6.3.1
-FROM docker.elastic.co/elasticsearch/elasticsearch:7.1.1
+FROM docker.elastic.co/elasticsearch/elasticsearch:7.3.0
 
 # x-pack はインストールしない
 #```

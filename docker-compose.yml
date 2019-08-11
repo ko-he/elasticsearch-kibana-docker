@@ -61,7 +61,7 @@ services:
 
 
   apm:
-    image: docker.elastic.co/apm/apm-server:7.1.1
+    image: docker.elastic.co/apm/apm-server:7.3.0
     container_name: apm
     ports:
       - 8200:8200
@@ -73,7 +73,7 @@ services:
       - esnet
 
   kibana:
-    image: docker.elastic.co/kibana/kibana:7.1.1
+    image: docker.elastic.co/kibana/kibana:7.3.0
     container_name: kibana
     environment:
       ELASTICSEARCH_HOSTS: http://elasticsearch:9200
@@ -89,6 +89,7 @@ volumes:
     driver: local
   elasticsearch_03_vol:
     driver: local
+
 
 networks:
   esnet:
