@@ -82,6 +82,18 @@ services:
     networks:
       - esnet
 
+  appsearch:
+    image: docker.elastic.co/app-search/app-search:7.3.0
+    container_name: appsearch
+    environment:
+      - "elasticsearch.host=http://elasticsearch:9200"
+      - "allow_es_settings_modification=true"
+      - "JAVA_OPTS=-Xmx256m"
+    ports:
+      - 3002:3002
+    networks:
+      - esnet
+
 volumes:
   elasticsearch_vol:
     driver: local
